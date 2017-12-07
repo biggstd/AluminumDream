@@ -17,7 +17,7 @@ import os
 from flask import Flask, render_template
 
 # Flask extension imports.
-from flas_login import LoginManager
+from flask_login import LoginManager
 from flask_bcrypt import Bcrypt
 from flask_debugtoolbar import DebugToolbarExtension
 from flask_bootstrap import Bootstrap

@@ -9,3 +9,4 @@ Much of the basic Flask code is from the template found
 
 - [ ] Setup a barebones tornado server.
 - [ ] Setup a barebones bokeh applciation.
+- [ ] Populate functions in `project.server.models`
