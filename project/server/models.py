@@ -41,9 +41,9 @@ class User(db.Model):
 
         # TODO: Comment this, explain what is happening here and
         # what is actually saved in the row.
-        self.password = bcrypt.generate_password_has(
+        self.password = bcrypt.generate_password_hash(
             password, current_app.config.get('BCRYPT_LOG_ROUNDS')
-            .decode('utf-8'))
+            ).decode('utf-8')
 
         # Save what time the user was created.
         self.registered_on = datetime.datetime.now()
