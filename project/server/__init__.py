@@ -38,7 +38,6 @@ def create_app():
     """
     Create the flask application.
     """
-
     # Instantiate the application.
     app = Flask(
         __name__,
