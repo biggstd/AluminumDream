@@ -7,6 +7,14 @@ Much of the basic Flask code is from the template found
 
 ## TODO:
 
-- [ ] Setup a barebones tornado server.
 - [ ] Setup a barebones bokeh applciation.
-- [ ] Populate functions in `project.server.models`
+- [ ] Add / update to a Click CLI interface.
+- [ ] Document CLI usage.
+- [ ] Add bokeh server, and demo plot display.
+
+
+## Running the Server
+
+```
+pip install -r requirements.txt
+```

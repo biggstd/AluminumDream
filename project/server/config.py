@@ -25,6 +25,7 @@ class DevelopmentConfig(BaseConfig):
 
 class TestingConfig(BaseConfig):
     """Testing configuration."""
+    SERVER_NAME = "http://127.0.0.1:8000/"
     DEBUG = True
     TESTING = True
     BCRYPT_LOG_ROUNDS = 4

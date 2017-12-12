@@ -24,7 +24,6 @@ from flask_bootstrap import Bootstrap
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 
-
 # Instantiate the extensions.
 login_manager = LoginManager()
 bcrypt = Bcrypt()
@@ -38,7 +37,6 @@ def create_app():
     """
     Create the flask application.
     """
-
     # Instantiate the application.
     app = Flask(
         __name__,
