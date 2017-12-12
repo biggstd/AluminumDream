@@ -2,17 +2,18 @@ import unittest
 import coverage
 import click
 import os
-from threading import Thread
 
-# from flask_script import Manager
-from flask_migrate import Migrate#, MigrateCommand
+from flask_migrate import Migrate
 
 from project.server import create_app, db
 from project.server.models import User
 
-# Import Bokeh application.
 from bokeh.server.server import Server
-from bokeh.application.handlers.directory import DirectoryHandler
+from bokeh.application import Application
+from bokeh.application.handlers import DirectoryHandler
+
+from threading import Thread
+
 
 # code coverage
 COV = coverage.coverage(
@@ -26,38 +27,16 @@ COV = coverage.coverage(
 )
 COV.start()
 
+# Create the Flask application.
 app = create_app()
+# Integrate the SQL database with the Flask application.
 migrate = Migrate(app, db)
-# manager = Manager(app)
-
-# migrations
-# manager.add_command('db', MigrateCommand)
 
 
-def start_bokeh_server():
-    """
-    Starts a bokeh server so that they can be accessed.
-    """
-    demo_path = os.path.abspath('project/server/bokeh_apps/bokehDemo/')
-    demo_app = DirectoryHandler(filename=demo_path)
-    bokeh_server = Server(
-        # The list of bokeh applications to run, and their
-        # associated URLs.
-        applications={
-            '/bokeh_demo_application': demo_app,
-        },
-        allow_websocket_origin=["localhost:8000"]
-    )
-
-    # Start the server.
-    bokeh_server.start()
-    bokeh_server.io_loop.start()
-
-
-# @manager.command
 @app.cli.command()
 def test():
     """Runs the unit tests without test coverage."""
+    click.echo('Testing the application...')
     tests = unittest.TestLoader().discover('project/tests', pattern='test*.py')
     result = unittest.TextTestRunner(verbosity=2).run(tests)
     if result.wasSuccessful():
@@ -65,10 +44,10 @@ def test():
     return 1
 
 
-# @manager.command
 @app.cli.command()
 def cov():
     """Runs the unit tests with coverage."""
+    click.echo('Running unit tests with coverage...')
     tests = unittest.TestLoader().discover('project/tests')
     result = unittest.TextTestRunner(verbosity=2).run(tests)
     if result.wasSuccessful():
@@ -82,42 +61,72 @@ def cov():
     return 1
 
 
-# @manager.command
 @app.cli.command()
 def create_db():
     """Creates the db tables."""
+    click.echo('Testing the database table creation...')
     db.create_all()
 
 
-# @manager.command
 @app.cli.command()
 def drop_db():
     """Drops the db tables."""
+    click.echo('Dropping database tables...')
     db.drop_all()
 
 
-# @manager.command
 @app.cli.command()
 def create_admin():
     """Creates the admin user."""
+    click.echo('Creating an admin user...')
     db.session.add(User(email='ad@min.com', password='admin', admin=True))
     db.session.commit()
 
 
-# @manager.command
 @app.cli.command()
 def create_data():
     """Creates sample data."""
+    click.echo('NOT IMPLEMENTED Creating sample data...')
     pass
 
 
+def start_bokeh_server():
+    """
+    Create and start a bokeh server with a series of
+    applications.
+    """
+    # Declare the absolute path to the demo application.
+    demo_path = os.path.abspath("project/server/bokeh_apps/bokehDemo")
+
+    # Declare the dictionary of applications to launch.
+    apps = {
+        '/bokehDemo': Application(DirectoryHandler(filename=demo_path)),
+    }
+
+    # Instantiate the Bokeh server.
+    # Allow connections from the Flask application.
+    server = Server(
+        applications=apps,
+        allow_websocket_origin=["127.0.0.1:5000"],
+        # port=5006
+    )
+    server.start()
+    server.io_loop.start()
+
+
 @app.cli.command()
-def deploy():
-    """
-    CLI function to deploy the entire server.
-    """
-    # Start the bokeh server.
+def bokeh_server():
+    """Creates sample data."""
+    click.echo('Starting Bokeh Server...')
+    start_bokeh_server()
+
+
+if __name__ == '__main__':
     Thread(target=start_bokeh_server).start()
+    # start_bokeh_server()
+    app.run(
+        # port=8000
+    )
 
     # Start the flask server
     app.run(port=8000)

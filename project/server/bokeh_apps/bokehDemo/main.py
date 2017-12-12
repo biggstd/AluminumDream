@@ -1,97 +1,78 @@
-import math
-import numpy as np
+import pandas as pd
 
-from bokeh.io import curdoc
-from bokeh.layouts import column
-from bokeh.models import Range1d
-from bokeh.models.widgets import Slider
-from bokeh.plotting import ColumnDataSource, Figure
+from bokeh.layouts import row, widgetbox
+from bokeh.models import Select
+from bokeh.palettes import Spectral5
+from bokeh.plotting import curdoc, figure
+from bokeh.sampledata.autompg import autompg_clean as df
 
-# --------------------------------------------------------
-#
-# An interactive plot showing normally distributed points.
-#
-# --------------------------------------------------------
+df = df.copy()
 
-# number of points shown in the plot
-NUM_POINTS = 100
+SIZES = list(range(6, 22, 3))
+COLORS = Spectral5
 
-standard_deviation_slider = Slider(
-    title='standard deviation', value=2, start=0, end=4)
-cutoff_slider = Slider(title='maximum radius', value=4, start=0, end=8)
+# data cleanup
+df.cyl = df.cyl.astype(str)
+df.yr = df.yr.astype(str)
+del df['name']
 
-source = ColumnDataSource()
+columns = sorted(df.columns)
+discrete = [x for x in columns if df[x].dtype == object]
+continuous = [x for x in columns if x not in discrete]
+quantileable = [x for x in continuous if len(df[x].unique()) > 20]
 
+def create_figure():
+    xs = df[x.value].values
+    ys = df[y.value].values
+    x_title = x.value.title()
+    y_title = y.value.title()
 
-def update_source_data(new_points):
-    """Update the source data.
+    kw = dict()
+    if x.value in discrete:
+        kw['x_range'] = sorted(set(xs))
+    if y.value in discrete:
+        kw['y_range'] = sorted(set(ys))
+    kw['title'] = "%s vs %s" % (x_title, y_title)
 
-    If new_points is True, random points will be generated. A normal
-    distribution is used, and its standard deviation
-    is the value of the standard deviation slider.
+    p = figure(plot_height=600, plot_width=800, tools='pan,box_zoom,reset', **kw)
+    p.xaxis.axis_label = x_title
+    p.yaxis.axis_label = y_title
 
-    The opacity of the points is chosen according to whether their
-     distance from the origin is greater than the value
-    of the cutoff slider.
+    if x.value in discrete:
+        p.xaxis.major_label_orientation = pd.np.pi / 4
 
-    Params:
-    -------
-    new_points: bool
-        Whether to generate new points.
-    """
+    sz = 9
+    if size.value != 'None':
+        groups = pd.qcut(df[size.value].values, len(SIZES))
+        sz = [SIZES[xx] for xx in groups.codes]
 
-    standard_deviation = standard_deviation_slider.value
-    cutoff = cutoff_slider.value
+    c = "#31AADE"
+    if color.value != 'None':
+        groups = pd.qcut(df[color.value].values, len(COLORS))
+        c = [COLORS[xx] for xx in groups.codes]
+    p.circle(x=xs, y=ys, color=c, size=sz, line_color="white", alpha=0.6, hover_color='white', hover_alpha=0.5)
 
-    # generate new points if requested
-
-    if new_points:
-        if standard_deviation > 0:
-            x = np.random.normal(0, standard_deviation, NUM_POINTS)
-            y = np.random.normal(0, standard_deviation, NUM_POINTS)
-        else:
-            x = np.zeros(NUM_POINTS)
-            y = np.zeros(NUM_POINTS)
-        source.data['x'] = x
-        source.data['y'] = y
-
-    # update the opacity
-
-    def radius(u, v):
-        """The distance from the origin."""
-
-        return math.sqrt(u ** 2 + v ** 2)
-
-    x = source.data['x']
-    y = source.data['y']
-    alpha = [1 if radius(x[i], y[i]) <=
-             cutoff else 0.1 for i in range(NUM_POINTS)]
-
-    source.data['alpha'] = alpha
+    return p
 
 
-# initialize the plot data
-update_source_data(True)
+def update(attr, old, new):
+    layout.children[1] = create_figure()
 
-# make the plot responsive to slider changes
-standard_deviation_slider.on_change(
-    'value', lambda attr, old_value, new_value: update_source_data(True))
-cutoff_slider.on_change('value', lambda attr, old_value,
-                        new_value: update_source_data(False))
 
-# create the figure
+x = Select(title='X-Axis', value='mpg', options=columns)
+x.on_change('value', update)
 
-p = Figure(title='Normal Distribution')
+y = Select(title='Y-Axis', value='hp', options=columns)
+y.on_change('value', update)
 
-p.scatter(source=source, x='x', y='y',
-          color='green', alpha='alpha', radius=0.1)
+size = Select(title='Size', value='None', options=['None'] + quantileable)
+size.on_change('value', update)
 
-p.x_range = Range1d(start=-8, end=8)
-p.y_range = Range1d(start=-8, end=8)
+color = Select(title='Color', value='None', options=['None'] + quantileable)
+color.on_change('value', update)
 
-content = column(standard_deviation_slider, cutoff_slider, p)
+controls = widgetbox([x, y, color, size], width=200)
+layout = row(controls, create_figure())
 
-# register the figure
-
-curdoc().add_root(content)
-curdoc().title = 'Normal Distribution'
+curdoc().add_root(layout)
+curdoc().title = "Crossfilter"
