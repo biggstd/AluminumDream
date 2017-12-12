@@ -8,11 +8,12 @@ from flask_migrate import Migrate
 from project.server import create_app, db
 from project.server.models import User
 
-from bokeh.command.util import build_single_handler_application
-# from project.server.bokeh_apps import BokehDemo
-# from bokeh.application.handlers.directory import DirectoryHandler
-
 from bokeh.server.server import Server
+from bokeh.application import Application
+from bokeh.application.handlers import DirectoryHandler
+
+from threading import Thread
+
 
 # code coverage
 COV = coverage.coverage(
@@ -26,7 +27,9 @@ COV = coverage.coverage(
 )
 COV.start()
 
+# Create the Flask application.
 app = create_app()
+# Integrate the SQL database with the Flask application.
 migrate = Migrate(app, db)
 
 
@@ -92,11 +95,20 @@ def start_bokeh_server():
     Create and start a bokeh server with a series of
     applications.
     """
-    app_path = os.path.abspath("project/server/bokeh_apps/bokehDemo/")
-    print(app_path)
+    # Declare the absolute path to the demo application.
+    demo_path = os.path.abspath("project/server/bokeh_apps/bokehDemo")
+
+    # Declare the dictionary of applications to launch.
+    apps = {
+        '/bokehDemo': Application(DirectoryHandler(filename=demo_path)),
+    }
+
+    # Instantiate the Bokeh server.
+    # Allow connections from the Flask application.
     server = Server(
-        {'/bokehDemo': build_single_handler_application(app_path)},
-        allow_websocket_origin=["localhost:5000"]
+        applications=apps,
+        allow_websocket_origin=["127.0.0.1:5000"],
+        # port=5006
     )
     server.start()
     server.io_loop.start()
@@ -110,5 +122,8 @@ def bokeh_server():
 
 
 if __name__ == '__main__':
-    app.run(port=5000)
-    start_bokeh_server()
+    Thread(target=start_bokeh_server).start()
+    # start_bokeh_server()
+    app.run(
+        # port=8000
+    )
