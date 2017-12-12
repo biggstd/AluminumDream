@@ -14,11 +14,9 @@ def about():
     return render_template("main/about.html")
 
 
-@main_blueprint.route("/bokeh-demo", methods=['GET'])
+@main_blueprint.route("/bokeh-demo/", methods=['GET'])
 def bokeh_demo():
     script = server_document(url='http://localhost:5006/bokehDemo')
     print('Bokeh route called.')
     print(script)
     return render_template("main/bokeh_app.html", script=script)
-
-    return render_template("main/bokeh_app.html", script=bokeh_script)
