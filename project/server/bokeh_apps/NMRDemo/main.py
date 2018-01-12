@@ -13,7 +13,7 @@ import pandas as pd
 
 # Bokeh imports
 from bokeh.layouts import layout, widgetbox
-from bokeh.models import ColumnDataSource, Select, HoverTool, TapTool
+from bokeh.models import ColumnDataSource, Select, HoverTool, TapTool, LinearInterpolator
 from bokeh.plotting import figure, curdoc
 from bokeh.models.widgets import Div
 from bokeh.palettes import Spectral5
@@ -23,6 +23,7 @@ from bokeh.transform import factor_cmap
 from isadream.nmr_demo_sa import *
 
 COLORS = Spectral5
+SIZES = list(range(6, 22, 3))
 
 # Simulate the return from a database query.
 # Build the investigation object.
@@ -94,12 +95,22 @@ def create_figure():
         width=800,
     )
 
+    sizes = 9
+    if size.value != 'None':
+        size_scale = LinearInterpolator(
+            x=[min(source.data[size.value]), max(source.data[size.value])],
+            y=[4, 16]
+        )
+        sizes = dict(field=size.value, transform=size_scale)
+
     if color.value != 'None':
         colors = factor_cmap(
             field_name=color.value,
             palette=Spectral5,
             factors=sorted(source.data[color.value].unique())
         )
+        print(colors)
+        print(type(colors))
     else:
         colors = "#31AADE"
 
@@ -107,7 +118,8 @@ def create_figure():
         source=source,
         x='x',
         y='y',
-        color=colors
+        color=colors,
+        size=sizes,
     )
 
     x_title = x_selector.value
@@ -184,7 +196,10 @@ y_selector.on_change('value', update_plot)
 color = Select(title='Color', value='None', options=['None'] + discrete)
 color.on_change('value', update_plot)
 
-controls = widgetbox([x_selector, y_selector, color])
+size = Select(title='Size', value='None', options=['None'] + continuous)
+size.on_change('value', update_plot)
+
+controls = widgetbox([x_selector, y_selector, color, size])
 
 layout = layout(
     children=[

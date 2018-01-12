@@ -19,22 +19,25 @@ bokeh serve NMRDemo/
 	- [x] Move to the right hand side of the plot.
 - [x] Filter the options available in the X and Y drop down selectors.
 - [x] Add a color by drop down.
-- [ ] Add more metadata information in the metadata div element.
-	- [ ] NMR acquisition information.
-	- [ ] Sample progeny information.
 - [x] Add counter-ion functionality.
 	- [x] Create the FactorValue instances for each Sample() instance.
 	- [x] Create the counter_ion StudyFactor.
-- [ ] Add a unique marker drop down.
-- [ ] Add a log scale toggle.
-- [ ] Create user-friendly strings for column names.
-- [ ] Add a process element.
-- [ ] Add more data points.
+- [x] Add a size drop down.
 - [ ] Change theme or colors for visibility.
+- [ ] Add more metadata information in the metadata div element.
+	- [ ] NMR acquisition information.
+	- [ ] Sample progeny information.
+- [ ] Add more data points.
+- [ ] Create user-friendly strings for column names.
+- [ ] Add a log scale toggle.
+- [ ] Add a unique marker drop down.
 
 ## TODO: Demo Presentation
 
-- [ ] Prepare / update poster.
+- [ ] Prepare / update poster. 10:00 AM tomorrow morning.
+	- [ ] A diagram that shows the interconnected parts of the database system.
+	- [ ] A diagram that shows the relationship between data and metadata, as
+	      implemented in this project.
 - [ ] Prepare ISA document diagram.
 
 ## TODO: Yak-shaving
