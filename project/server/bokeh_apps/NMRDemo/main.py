@@ -103,9 +103,6 @@ def create_figure():
     else:
         colors = "#31AADE"
 
-    print(colors)
-    print(type(colors))
-
     fig.circle(
         source=source,
         x='x',
@@ -137,8 +134,9 @@ def format_assay_text(isa_assay_obj):
     """Prepares the ISA assay object for easy reading in an HTML
     format."""
     out_str = (
-        '<strong>Publication Title</strong>: {}\n'
-        'Publication DOI: {}\n'
+        '<strong>Publication Title</strong>: {0}<br />'
+        '<strong>Publication DOI</strong>: '
+        '<a href="https://doi.org/{1}">{1}</a><br />'
         .format(
             isa_assay_obj.publications[0].title,
             isa_assay_obj.publications[0].doi
