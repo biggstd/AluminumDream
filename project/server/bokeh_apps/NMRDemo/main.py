@@ -16,13 +16,13 @@ from bokeh.layouts import layout, widgetbox
 from bokeh.models import ColumnDataSource, Select, HoverTool, TapTool, LinearInterpolator
 from bokeh.plotting import figure, curdoc
 from bokeh.models.widgets import Div
-from bokeh.palettes import Spectral5
+from bokeh.palettes import Category10
 from bokeh.transform import factor_cmap
 
 # isaDream imports.
 from isadream.nmr_demo_sa import *
 
-COLORS = Spectral5
+COLORS = Category10
 SIZES = list(range(6, 22, 3))
 
 # Simulate the return from a database query.
@@ -62,6 +62,9 @@ def update_data():
     for col in list(data_frame):
         source.add(data=data_frame[col], name=col)
 
+    # print(list(data_frame))
+    # print(data_frame)
+
 
 def tap_select_callback(attr, old, new):
     """The callback function for when a user uses the TapTool to
@@ -69,7 +72,10 @@ def tap_select_callback(attr, old, new):
     """
     new_index = new['1d']['indices'][0]
     study_key = source.data['study_ID'][new_index]
-    layout.children[1].children[2] = build_metadata_paragraph(study_key)
+    assay_key = source.data['assay_ID'][new_index]
+    # print(study_key, assay_key)
+    layout.children[1].children[2] = build_metadata_paragraph(
+        study_key, assay_key)
 
 
 def build_hover_tool():
@@ -95,22 +101,21 @@ def create_figure():
         width=800,
     )
 
-    sizes = 9
+    sizes = 7
     if size.value != 'None':
         size_scale = LinearInterpolator(
             x=[min(source.data[size.value]), max(source.data[size.value])],
-            y=[4, 16]
+            y=[2, 15]
         )
         sizes = dict(field=size.value, transform=size_scale)
 
     if color.value != 'None':
         colors = factor_cmap(
             field_name=color.value,
-            palette=Spectral5,
+            # palette=Category10[len(source.data[color.value].unique())],
+            palette=Category10[10],
             factors=sorted(source.data[color.value].unique())
         )
-        print(colors)
-        print(type(colors))
     else:
         colors = "#31AADE"
 
@@ -120,6 +125,7 @@ def create_figure():
         y='y',
         color=colors,
         size=sizes,
+        legend=color.value,
     )
 
     x_title = x_selector.value
@@ -142,43 +148,76 @@ def update_plot(attr, old, new):
     pass
 
 
-def format_assay_text(isa_assay_obj):
+def format_assay_text(study, assay):
     """Prepares the ISA assay object for easy reading in an HTML
     format."""
     out_str = (
-        '<strong>Publication Title</strong>: {0}<br />'
-        '<strong>Publication DOI</strong>: '
-        '<a href="https://doi.org/{1}">{1}</a><br />'
-        .format(
-            isa_assay_obj.publications[0].title,
-            isa_assay_obj.publications[0].doi
-        )
+        format_publication_html(study, assay) +
+        format_protocol_html(study, assay)
     )
     return out_str
 
 
-def build_metadata_paragraph(key=None):
+def format_publication_html(study, assay):
+
+    out_html = "<strong>Publications</strong>: <br />"
+
+    for pub in study.publications:
+        out_html += (
+            '<strong>Title</strong>: {0}<br />'
+            '<strong>DOI</strong>: '
+            '<a href="https://doi.org/{1}">{1}</a><br />'
+            .format(
+                pub.title,
+                pub.doi
+            )
+        )
+    return out_html
+
+
+def format_protocol_html(study, assay):
+
+    out_html = "<br /><strong>Experiment Protocol</strong>: <br />"
+
+    for proc in assay.process_sequence:
+        out_html += (
+            '<strong>Protocol</strong>: {0}<br />'
+            .format(
+                proc.executes_protocol.name,
+            )
+        )
+        for param in proc.parameter_values:
+            out_html += (
+                '<strong>{0}</strong>: {1} {2}<br />'
+                .format(
+                    param.category.parameter_name.term,
+                    param.value,
+                    param.unit.term
+                )
+            )
+    return out_html
+
+
+def format_material_html(study, assay):
+    pass
+
+
+def build_metadata_paragraph(study_key=None, assay_key=None):
     """Constructs an HTML paragraph based on a given key."""
-    if key is None:
+    # if key is None:
+    if all(v is None for v in [study_key, assay_key]):
         return Div(
             text="No data point selected.",
-            width=300,
-            height=200,
+            width=500,
         )
     else:
-        active_dict_entry = metadata_dict[key]
+        active_study = metadata_dict[study_key]
+        active_assay = metadata_dict[assay_key]
         new_paragarph = Div(
-            text=format_assay_text(active_dict_entry),
-            width=300,
-            height=200,
+            text=format_assay_text(active_study, active_assay),
+            width=500,
         )
         return new_paragarph
-
-
-def callback(event):
-    """The callback event to be run upon the selection of a data point.
-    """
-    pass
 
 
 # HTML Elements ---------------------------------------------------------------

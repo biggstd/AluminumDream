@@ -1,4 +1,4 @@
-# Aluminum Tornado
+# Aluminum Dream
 
 The first generation of the IDREAM visualization database.
 Much of the basic Flask code is from the template found
@@ -7,10 +7,11 @@ Much of the basic Flask code is from the template found
 
 ## TODO:
 
-- [ ] Setup a barebones bokeh applciation.
-- [ ] Add / update to a Click CLI interface.
+- [x] Setup a barebones bokeh applciation.
+- [x] Add / update to a Click CLI interface.
 - [ ] Document CLI usage.
-- [ ] Add bokeh server, and demo plot display.
+- [x] Add bokeh server, and demo plot display.
+- [ ] Add instructions for running this server.
 
 
 ## Running the Server

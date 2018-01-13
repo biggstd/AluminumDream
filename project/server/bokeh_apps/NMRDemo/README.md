@@ -23,24 +23,31 @@ bokeh serve NMRDemo/
 	- [x] Create the FactorValue instances for each Sample() instance.
 	- [x] Create the counter_ion StudyFactor.
 - [x] Add a size drop down.
-- [ ] Change theme or colors for visibility.
+- [x] Change theme or colors for visibility.
+- [x] Add a legend to the plot / figure.
 - [ ] Add more metadata information in the metadata div element.
-	- [ ] NMR acquisition information.
-	- [ ] Sample progeny information.
+	- [x] NMR acquisition information.
+		- [x] Create OntologyAnnotations.
+		- [x] Create ProtocolParameters.
+		- [x] Create associated OntologyAnnotations.
+		- [x] Pass the process information to the metadata display div.
+		- [x] Create Process for each assay.
 - [ ] Add more data points.
+	- [x] Sipos 2006 Tantala figure 2.
+	- [ ] Moolenar 1970
+- [ ] Add counter ion concentration feature.
+- [ ] Sample progeny information display.
 - [ ] Create user-friendly strings for column names.
 - [ ] Add a log scale toggle.
 - [ ] Add a unique marker drop down.
 
 ## TODO: Demo Presentation
 
-- [ ] Prepare / update poster. 10:00 AM tomorrow morning.
-	- [ ] A diagram that shows the interconnected parts of the database system.
-	- [ ] A diagram that shows the relationship between data and metadata, as
-	      implemented in this project.
+- [x] Prepare / update poster. 10:00 AM tomorrow morning.
 - [ ] Prepare ISA document diagram.
 
 ## TODO: Yak-shaving
 
 - [ ] Update Bokeh layout elements by name, rather than nested indexes.
 - [ ] Change the demo data generation to a function.
+- [ ] Find a more elegant way to format python lists to html output.
